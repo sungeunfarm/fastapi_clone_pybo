@@ -1,0 +1,102 @@
+<script>
+    import fastapi from "../lib/api";
+    import Error from "../components/Error.svelte";
+
+    export let params = {}
+    let question_id = params.question_id
+    let question = {answers:[]}
+    let content =""
+    let error = {detail:[]}
+
+function get_question(){
+    fastapi("get","/api/question/detail/"+question_id,{},(json)=>{
+        question = json
+    })
+}
+get_question()
+
+function post_answer(event) {
+        event.preventDefault()
+        let url = "/api/answer/create/" + question_id
+        let params = {
+            content: content,
+        }
+        fastapi("post", url, params, (json) => {
+            content = ""
+            error = {detail:[]}
+            get_question()
+        },(err_json)=>{
+            error = err_json
+        }
+        )
+    }
+
+</script>
+
+
+<div class="container my-3">
+    <!-- 질문 -->
+    <h2 class="border-bottom py-2">{question.subject}</h2>
+    <div class="card my-3">
+        <div class="card-body">
+            <div class="card-text" style="white-space: pre-line;">
+                {question.content}
+            </div>
+            <div class="d-flex justify-content-end">
+                <div class="badge bg-light text-dark p-2">{question.create_date}</div>
+            </div>
+        </div>
+    </div>
+    <!-- 답변목록 -->
+    <h5 class="border-bottom my-3 py-2">{question.answers.length}개의 답변이 있습니다.</h5>
+    {#each question.answers as answer}
+        <div class="card my-3">
+            <div class="card-body">
+                <div class="card-text" style="white-space: pre-line;">
+                    {answer.content}
+                </div>
+                <div class="d-flex justify-content-end">
+                    <div class="badge bg-light text-dark p-2">{answer.create_date}</div>
+                </div>
+            </div>
+        </div>
+    {/each}
+    <!-- 답변등록 -->
+    <Error error={error}/>
+    <form action="" method="post" class="my-3">
+        <div class="mb-3">
+            <textarea bind:value={content} rows="10" class="form-control"></textarea>
+        </div>
+        <input type="submit" value="답변등록" on:click="{post_answer}" class="btn btn-primary">
+    </form>
+</div>
+
+
+
+
+
+
+
+
+
+<!-- <h1>{question.subject}</h1>
+<div>{question.content}</div>
+<ul>
+    {#each question.answers as answer}
+        <li>{answer.content}</li>
+    {/each}
+</ul>
+<Error error={error}/>
+<form action="" method="post">
+    <textarea rows="15" bind:value={content}></textarea>
+    <input type="submit" value="답변등록" on:click="{post_answer}">
+</form>
+
+<style>
+    textarea{
+        width: 100%;
+    }
+    input[type=submit]{
+        margin-top: 10px;
+    }
+</style> -->
