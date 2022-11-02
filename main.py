@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from domain.question import question_router
 from domain.answer import answer_router
+from domain.user import user_router
 import uvicorn
 
 app = FastAPI()
@@ -24,6 +25,7 @@ app.add_middleware(
 # 라우터 실행코드
 app.include_router(question_router.router)
 app.include_router(answer_router.router)
+app.include_router(user_router.router)
 
 if __name__ == '__main__':
     uvicorn.run(app = "main:app", host= "127.0.0.1", port= 8000, reload=True, workers=4)
